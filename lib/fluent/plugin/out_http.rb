@@ -78,7 +78,6 @@ class Fluent::HTTPOutput < Fluent::Output
   end
 
   def set_header(req, tag, time, record)
-    p(@headers)
     @headers.each do |key, value|
       req[key] = value
     end
