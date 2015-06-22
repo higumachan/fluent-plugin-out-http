@@ -50,14 +50,8 @@ class Fluent::HTTPOutput < Fluent::Output
             end
     @headers = {}
     conf.elements.each do |element|
-      p(element)
       if element.name == 'headers'
-        p(element.methods)
-        p(element.elements)
-        p(element.keys)
-        p(element.values)
         @headers = element.to_hash
-        p(@headers)
       end
     end
   end
