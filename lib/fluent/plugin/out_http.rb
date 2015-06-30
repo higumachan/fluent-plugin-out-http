@@ -1,4 +1,3 @@
-
 class Hash
   """
   each traverse in hash
@@ -6,19 +5,19 @@ class Hash
   def each_deep(&proc)
     self.each_deep_detail([], &proc)
   end
+
   def each_deep_detail(directory, &proc)
     self.each do |k, v|
       current = directory + [k]
-      if v.kind_of?(Hash)
+      if v.kind_of?(v.class)
         v.each_deep_detail(current, &proc)
       else
         yield(current, v)
       end
-
     end
   end
-end
 
+end
 
 class Fluent::HTTPOutput < Fluent::Output
   Fluent::Plugin.register_output('http', self)
@@ -89,8 +88,6 @@ class Fluent::HTTPOutput < Fluent::Output
   def format_url(tag, time, record)
     result_url = @endpoint_url
     record.each_deep do |key_dir, value|
-      p key_dir
-      p value
       result_url = result_url.gsub(/<#{key_dir.join(".")}>/, value.to_s)
     end
     return result_url
