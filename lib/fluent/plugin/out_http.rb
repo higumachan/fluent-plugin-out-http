@@ -9,7 +9,7 @@ class Hash
   def each_deep_detail(directory, &proc)
     self.each do |k, v|
       current = directory + [k]
-      if v.kind_of?(v.class)
+      if v.kind_of?(Hash)
         v.each_deep_detail(current, &proc)
       else
         yield(current, v)
@@ -38,6 +38,9 @@ class Fluent::HTTPOutput < Fluent::Output
   # form | json
   config_param :serializer, :string, :default => :form
 
+  # true | false
+  config_param :use_ssl, :bool, :default => false
+
   # Simple rate limiting: ignore any records within `rate_limit_msec`
   # since the last one.
   config_param :rate_limit_msec, :integer, :default => 0
@@ -45,7 +48,11 @@ class Fluent::HTTPOutput < Fluent::Output
   # Raise errors that were rescued during HTTP requests?
   config_param :raise_on_error, :bool, :default => true
 
+
   # nil | 'none' | 'basic'
+  config_param :authentication, :string, :default => nil
+  config_param :username, :string, :default => ''
+  config_param :password, :string, :default => ''
 
   def configure(conf)
     super
@@ -137,7 +144,13 @@ class Fluent::HTTPOutput < Fluent::Output
         req.basic_auth(@username, @password)
       end
       @last_request_time = Time.now.to_f
-      res = Net::HTTP.new(uri.host, uri.port).start {|http| http.request(req) }
+      client = Net::HTTP.new(uri.host, uri.port)
+      if @use_ssl
+        client.use_ssl = true
+        client.ca_file = OpenSSL::X509::DEFAULT_CERT_FILE
+        client.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      end
+      res = client.start {|http| http.request(req) }
     rescue => e # rescue all StandardErrors
       # server didn't respond
       $log.warn "Net::HTTP.#{req.method.capitalize} raises exception: #{e.class}, '#{e.message}'"
