@@ -93,6 +93,12 @@ class Fluent::HTTPOutput < Fluent::Output
   end
 
   def format_url(tag, time, record)
+    '''
+    replace format string to value
+    example
+      /test/<data> =(use {data: 1})> /test/1
+      /test/<hash.data> =(use {hash:{data:2}})> /test/2
+    '''
     result_url = @endpoint_url
     record.each_deep do |key_dir, value|
       result_url = result_url.gsub(/<#{key_dir.join(".")}>/, value.to_s)
