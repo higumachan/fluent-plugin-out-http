@@ -154,7 +154,6 @@ class Fluent::HTTPOutput < Fluent::Output
       if @use_ssl
         client.use_ssl = true
         client.ca_file = OpenSSL::X509::DEFAULT_CERT_FILE
-        client.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
       res = client.start {|http| http.request(req) }
     rescue => e # rescue all StandardErrors
